@@ -48,9 +48,14 @@ def test():
 def add():
     """ Creates an event in the Setu OOO calendar, provided input is valid """
     date_str = request.form["text"]
+    log.info("received text for /ooo slash command - %s", date_str)
     try:
         start_date = datetime.strptime(date_str, "%d-%m-%Y")
     except ValueError:
+        log.error(
+            "received incorrect date format where dd-mm-yyyy was expected - %s",
+            date_str,
+        )
         return "Date has to be provided in dd-mm-yyyy format."
 
     # Capture required parameters from request
@@ -71,6 +76,12 @@ def add():
         except HttpError as e:
             log.error("error creating calendar event - {e}")
             response_text = "Unable to create events. Try again in a while?"
+        log.info(
+            "created '%s' event for %s on %s",
+            event["summary"],
+            name,
+            start_date.strftime("%d-%m-%Y"),
+        )
         # Serve this response back to Slack
         requests.post(response_url, json={"text": response_text})
 
