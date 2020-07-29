@@ -1,17 +1,17 @@
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from pprint import pprint
 
 import requests
-from flask import Flask, current_app, make_response, request
+from flask import Flask, current_app, request
 from googleapiclient.errors import HttpError
 from slack.errors import SlackApiError
 
 from .after_this_response import AfterThisResponse
 from .services import calendar_service, slack_service
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
 
 app = Flask(__name__)
@@ -44,7 +44,7 @@ def test():
     }
 
 
-@app.route("/ooo", methods=("POST",))
+@app.route("/ooo/create", methods=("POST",))
 def add():
     """ Creates an event in the Setu OOO calendar, provided input is valid """
     date_str = request.form["text"]
@@ -66,23 +66,36 @@ def add():
     def handle_calendar():
         # Get the user's name
         profile_response = slack_service.users_profile_get(user=user_id)
-        name = profile_response["profile"]["real_name"]
+        user_real_name = profile_response["profile"]["real_name"]
         # Create a calendar event
         try:
-            event = calendar_service.create_ooo_event(name, start_date)
-            response_text = (
-                f"Created event - <{event['htmlLink']}|{event['summary']}>  :palm_tree:"
-            )
+            event = calendar_service.create_ooo_event(user_real_name, start_date)
         except HttpError as e:
-            log.error("error creating calendar event - {e}")
-            response_text = "Unable to create events. Try again in a while?"
+            log.error("error creating calendar event - %s", e)
+            requests.post(
+                response_url,
+                json={"text": "Unable to create events. Try again in a while?"},
+            )
+            return
+        event_link = event["htmlLink"]
+        event_name = event["summary"]
         log.info(
             "created '%s' event for %s on %s",
-            event["summary"],
-            name,
+            event_name,
+            user_real_name,
             start_date.strftime("%d-%m-%Y"),
         )
-        # Serve this response back to Slack
+        # Send a private ephemeral response
+        response_text = f"Created event - <{event_link}|{event_name}>  :palm_tree:"
         requests.post(response_url, json={"text": response_text})
+        # Send a message to #ooo about this event
+        long_date = start_date.strftime("%A, %d %B %Y")
+        try:
+            slack_service.chat_postMessage(
+                channel="#ooo",
+                text=f"<@{user_id}> will be OOO on {long_date}  :palm_tree:",
+            )
+        except SlackApiError as e:
+            log.error("error occurred while sending message - %s", e)
 
     return "", 200
