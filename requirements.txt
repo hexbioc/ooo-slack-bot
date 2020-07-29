@@ -8,6 +8,7 @@ cachetools==4.1.1
 certifi==2020.6.20
 chardet==3.0.4
 click==7.1.2
+dateparser==0.7.6
 flake8==3.8.3
 Flask==1.1.2
 google-api-core==1.22.0
@@ -31,6 +32,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycodestyle==2.6.0
 pyflakes==2.2.0
+python-dateutil==2.8.1
 pytz==2020.1
 regex==2020.7.14
 requests==2.24.0
@@ -40,6 +42,7 @@ slackclient==2.7.3
 toml==0.10.1
 typed-ast==1.4.1
 typing-extensions==3.7.4.2
+tzlocal==2.1
 uritemplate==3.0.1
 urllib3==1.25.10
 Werkzeug==1.0.1
