@@ -86,7 +86,7 @@ def add():
             start_date.strftime("%d-%m-%Y"),
         )
         # Send a private ephemeral response
-        response_text = f"Created event - <{event_link}|{event_name}>  :palm_tree:"
+        response_text = f"Created event - <{event_link}|{event_name}>. Don't forget to apply on <https://brokentusk.greythr.com/|greytHR> too!  :palm_tree:"
         requests.post(response_url, json={"text": response_text})
         # Send a message to #ooo about this event
         long_date = start_date.strftime("%A, %d %B %Y")
