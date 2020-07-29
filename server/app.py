@@ -1,6 +1,5 @@
 import json
 import logging
-from datetime import datetime
 from pprint import pprint
 
 import dateparser
@@ -49,8 +48,8 @@ def test():
 @app.route("/ooo/create", methods=("POST",))
 def add():
     """ Creates an event in the Setu OOO calendar, provided input is valid """
-    date_str = request.form["text"]
-    log.info("received text for /ooo slash command - %s", date_str)
+    text = request.form["text"]
+    log.info("received text for /ooo slash command - %s", text)
     try:
         start_date = dateparser.parse(text, settings={"PREFER_DATES_FROM": "futures"})
         if start_date is None:
@@ -89,8 +88,9 @@ def add():
         # Send a private ephemeral response
         long_date = start_date.strftime("%A, %d %B %Y")
         response_text = (
-            f"Created event for {long_date} - <{event_link}|{event_name}>."
-            + " Don't forget to apply on <https://brokentusk.greythr.com/|greytHR> too!  :palm_tree:"
+            f"Created an event for {long_date} - <{event_link}|{event_name}>."
+            + " Don't forget to apply on <https://brokentusk.greythr.com/|greytHR>"
+            + " too!  :palm_tree:"
         )
         requests.post(response_url, json={"text": response_text})
 

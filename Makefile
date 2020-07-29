@@ -10,5 +10,8 @@ format:
 	@isort -rc server/
 	@black server/
 
+lint:
+	@flake8 server/
+
 start:
 	@FLASK_ENV=development python -m server
