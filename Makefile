@@ -7,7 +7,7 @@ init:
 	pip install -r requirements.txt
 
 format:
-	@isort server/
+	@isort -rc server/
 	@black server/
 
 start:

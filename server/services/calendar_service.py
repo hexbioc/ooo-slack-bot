@@ -1,7 +1,6 @@
 import datetime
 
 import googleapiclient.discovery
-from flask import Flask, request
 from google.oauth2 import service_account
 
 import server.config as config
