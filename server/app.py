@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import json
 import logging
 from pprint import pprint
@@ -48,10 +50,28 @@ def test():
 @app.route("/ooo/create", methods=("POST",))
 def add():
     """ Creates an event in the Setu OOO calendar, provided input is valid """
+    # Verify request
+    request_ts = request.headers["X-Slack-Request-Timestamp"]
+    msg_signature = request.headers["X-Slack-Signature"]
+    raw_data = request.get_data(as_text=True)
+    base_string = f"v0:{request_ts}:{raw_data}".encode("utf-8")
+
+    computed_signature = (
+        "v0="
+        + hmac.digest(
+            config.BOT_SIGNING_SECRET.encode("utf-8"), base_string, hashlib.sha256
+        ).hex()
+    )
+
+    if not hmac.compare_digest(msg_signature, computed_signature):
+        log.error("signature verification failed. payload - ", raw_data)
+        return "Ahha! Nice try. Didn't work.", 200
+
+    # Process request
     text = request.form["text"]
     log.info("received text for /ooo slash command - %s", text)
     try:
-        start_date = dateparser.parse(text, settings={"PREFER_DATES_FROM": "futures"})
+        start_date = dateparser.parse(text, settings={"PREFER_DATES_FROM": "future"})
         if start_date is None:
             raise ValueError("no date found")
     except ValueError as e:
@@ -74,16 +94,20 @@ def add():
             log.error("error creating calendar event - %s", e)
             requests.post(
                 response_url,
-                json={"text": "Unable to create events. Try again in a while?"},
+                json={
+                    "text": "Unable to create events. Try again in a while?",
+                    "response_type": "ephemeral",
+                },
             )
             return
         event_link = event["htmlLink"]
         event_name = event["summary"]
         log.info(
-            "created '%s' event for %s on %s",
+            "created '%s' event for %s on %s for text '%s'",
             event_name,
             user_real_name,
             start_date.strftime("%d-%m-%Y"),
+            text,
         )
         # Send a private ephemeral response
         long_date = start_date.strftime("%A, %d %B %Y")
@@ -92,7 +116,9 @@ def add():
             + " Don't forget to apply on <https://brokentusk.greythr.com/|greytHR>"
             + " too!  :palm_tree:"
         )
-        requests.post(response_url, json={"text": response_text})
+        requests.post(
+            response_url, json={"text": response_text, "response_type": "ephemeral"},
+        )
 
         if config.POST_TO_OOO:
             # Send a message to #ooo about this event
@@ -104,4 +130,4 @@ def add():
             except SlackApiError as e:
                 log.error("error occurred while sending message - %s", e)
 
-    return "", 200
+    return "I'm on it! :robot_face:", 200
