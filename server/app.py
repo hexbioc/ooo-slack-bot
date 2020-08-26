@@ -24,7 +24,7 @@ AfterThisResponse(app)
 
 @app.route("/health", methods=("GET",))
 def health():
-    return 200
+    return "", 200
 
 
 @app.route("/test", methods=("POST",))
