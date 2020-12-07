@@ -81,7 +81,7 @@ def add():
             raise ValueError("no date found")
     except ValueError as e:
         log.error("error parsing date in string '%s' - %s", text, e)
-        return "I couldn't figure that out. Maybe share the date in dd-mm-yyyy format?"
+        return "I couldn't figure that out. Maybe share the date in mm-dd-yyyy format?"
 
     # Capture required parameters from request
     response_url = request.form["response_url"]
