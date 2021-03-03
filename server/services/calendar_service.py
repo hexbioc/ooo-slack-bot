@@ -6,7 +6,7 @@ from google.oauth2 import service_account
 import server.config as config
 
 _SCOPES_ = ["https://www.googleapis.com/auth/calendar"]
-_DATE_FORMAT_ = "%Y-%m-%d"
+_DATE_FORMAT_ = r"%Y-%m-%d"
 
 
 class CalendarService:
@@ -18,12 +18,21 @@ class CalendarService:
             "calendar", "v3", credentials=self._credentials_
         )
 
-    def create_ooo_event(self, name, ooo_date):
-        end_date = ooo_date + datetime.timedelta(days=1)
+    def create_ooo_event(self, name, from_date, to_date=None, reason=""):
+        if to_date is None or to_date == from_date:
+            to_date = (
+                datetime.datetime.strptime(from_date, _DATE_FORMAT_)
+                + datetime.timedelta(days=1)
+            ).strftime(_DATE_FORMAT_)
+
+        summary = f"OOO: {name}"
+        if reason:
+            summary = f"{summary} ({reason})"
+
         event_payload = {
-            "summary": f"OOO: {name}",
-            "start": {"date": ooo_date.strftime(_DATE_FORMAT_)},
-            "end": {"date": end_date.strftime(_DATE_FORMAT_)},
+            "summary": summary,
+            "start": {"date": from_date, "timezone": "Asia/Kolkata"},
+            "end": {"date": to_date, "timezone": "Asia/Kolkata"},
         }
         return (
             self.service.events()

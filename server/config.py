@@ -1,4 +1,5 @@
 import base64
+import datetime
 import os
 import tempfile
 
@@ -15,4 +16,11 @@ _sa_key_file_.write(base64.b64decode(_b64_sa_key_file_))
 _sa_key_file_.flush()
 
 SA_KEY_PATH = _sa_key_file_.name
-POST_TO_OOO = os.getenv("POST_TO_OOO", "False").strip().lower() in _truthy_values_
+
+TZ = datetime.timezone(datetime.timedelta(minutes=330), name="Asia/Kolkata")
+DATEPARSER_SETTINGS = {
+    "PREFER_DATES_FROM": "future",
+    "DATE_ORDER": "DMY",
+    "TIMEZONE": "Asia/Kolkata",
+    "RETURN_AS_TIMEZONE_AWARE": True,
+}
