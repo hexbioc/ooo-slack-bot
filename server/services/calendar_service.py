@@ -19,11 +19,13 @@ class CalendarService:
         )
 
     def create_ooo_event(self, name, from_date, to_date=None, reason=""):
-        if to_date is None or to_date == from_date:
-            to_date = (
-                datetime.datetime.strptime(from_date, _DATE_FORMAT_)
-                + datetime.timedelta(days=1)
-            ).strftime(_DATE_FORMAT_)
+        if to_date is None:
+            to_date = from_date
+
+        end_date = (
+            datetime.datetime.strptime(to_date, _DATE_FORMAT_)
+            + datetime.timedelta(days=1)
+        ).strftime(_DATE_FORMAT_)
 
         summary = f"OOO: {name}"
         if reason:
@@ -32,7 +34,7 @@ class CalendarService:
         event_payload = {
             "summary": summary,
             "start": {"date": from_date, "timezone": "Asia/Kolkata"},
-            "end": {"date": to_date, "timezone": "Asia/Kolkata"},
+            "end": {"date": end_date, "timezone": "Asia/Kolkata"},
         }
         return (
             self.service.events()
