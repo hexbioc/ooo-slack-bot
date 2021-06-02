@@ -52,7 +52,7 @@ typed-ast==1.4.1
 typing-extensions==3.7.4.2
 tzlocal==2.1
 uritemplate==3.0.1
-urllib3==1.25.10
+urllib3==1.26.5
 virtualenv==20.0.28
 Werkzeug==1.0.1
 wrapt==1.12.1
