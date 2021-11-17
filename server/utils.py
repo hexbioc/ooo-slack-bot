@@ -22,6 +22,15 @@ _POTENTIAL_REASONS_ = [
     "Lazy days",
     "Secret mission",
     "Frustrated AF",
+    "brrrrrrrr",
+    "Meeeee time",
+    "Stress aaaaahhh -.-",
+    "Some peace and quiet",
+    "Drunk out of my mind lulz",
+    "New beginnings",
+    "New beginnings, again",
+    "Playing housie",
+    "Dancing my blues away",
 ]
 
 random.seed(datetime.now())
@@ -182,8 +191,7 @@ def handle_calendar(user_id, from_date, to_date=None, reason=""):
 
     response_text = (
         f"Created the event - <{event_link}|{event_name}>."
-        + " Don't forget to apply on <https://brokentusk.greythr.com/|greytHR>"
-        + " too!  :palm_tree:"
+        + " *Happy day offff!* :palm_tree:"
     )
 
     return response_text
